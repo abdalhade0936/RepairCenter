@@ -27,4 +27,4 @@ namespace RepairCenter
                 && IsValidDeliveryLocation(location);
         }
     }
-    }
+}

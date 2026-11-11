@@ -56,8 +56,12 @@ namespace RepairCenter
         private void ChangeStatus(RepairStatus newStatus)
         {
             RepairStatus oldStatus = Status;
-            Status = newStatus;
 
+            // Do not raise the event when the status has not changed.
+            if (oldStatus == newStatus)
+                return;
+
+            Status = newStatus;
             StatusChanged?.Invoke(this, oldStatus, newStatus);
         }
 
