@@ -1,90 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Linq;
 
-namespace RepairCenter
+namespace RepairCenter;
+
+internal static class Program
 {
-    class Program
+    private static void Main()
     {
-        static void Main(string[] args)
+        Console.WriteLine("=== Home Appliance Repair Center ===");
+        var center = new RepairCenter();
+        Appliance[] devices =
         {
-            List<Appliance> appliances = new List<Appliance>();
+            new Fridge("F101", "Ahmad", "Damascus"),
+            new Fridge("F102", "Maya", "Homs"),
+            new Washer("W101", "Sara", "Aleppo"),
+            new Washer("W102", "Omar", "Latakia"),
+            new AirConditioner("A101", "Lina", "Tartus"),
+            new AirConditioner("A102", "Khaled", "Damascus")
+        };
 
-            Console.WriteLine("=== Home Appliance Repair Center ===");
-
-            // Create appliances
-            Appliance fridge = new Fridge(
-                "F101", "Ahmad", "Damascus");
-
-            Appliance washer = new Washer(
-                "W102", "Sara", "Aleppo");
-
-            Appliance airConditioner = new AirConditioner(
-                "A103", "Omar", "Homs");
-
-            // Validate and register appliances
-            Appliance[] devices =
+        foreach (Appliance device in devices)
+        {
+            if (!RepairValidator.IsValidAppliance(device.SerialNumber, device.CustomerName, device.DeliveryLocation))
             {
-                fridge,
-                washer,
-                airConditioner
-            };
-
-            foreach (Appliance device in devices)
-            {
-                if (RepairValidator.IsValidAppliance(
-                    device.SerialNumber,
-                    device.CustomerName,
-                    device.DeliveryLocation))
-                {
-                    appliances.Add(device);
-                    RepairCenterStats.RegisterDevice();
-
-                    device.StatusChanged += OnStatusChanged;
-                }
+                Console.WriteLine($"Invalid device data: {device.SerialNumber}");
+                continue;
             }
-
-            // Start and complete repairs
-            foreach (Appliance device in appliances)
-            {
-                Console.WriteLine("\nDevice: " + device.SerialNumber);
-
-                device.StartRepair();
-
-                decimal cost = device.CalculateRepairCost();
-
-                RepairCenterStats.AddRepairCost(cost);
-
-                Console.WriteLine("Customer: " + device.CustomerName);
-                Console.WriteLine("Location: " + device.DeliveryLocation);
-                Console.WriteLine("Repair Cost: " + cost);
-
-                device.CompleteRepair();
-            }
-
-            // Display statistics
-            Console.WriteLine("\n=== Repair Center Statistics ===");
-
-            Console.WriteLine(
-                "Total Devices: " +
-                RepairCenterStats.TotalDevices);
-
-            Console.WriteLine(
-                "Total Repair Cost: " +
-                RepairCenterStats.TotalRepairCost);
-
-            Console.WriteLine("\nProgram Finished Successfully!");
+            if (center.Register(device)) Console.WriteLine($"Registered: {device.SerialNumber} ({device.GetType().Name})");
         }
 
-        static void OnStatusChanged(
-            Appliance appliance,
-            RepairStatus oldStatus,
-            RepairStatus newStatus)
+        foreach (Appliance device in center.Appliances)
         {
-            Console.WriteLine(
-                "Status Changed: " +
-                appliance.SerialNumber +
-                " | " + oldStatus +
-                " -> " + newStatus);
+            device.StatusChanged += OnStatusChanged;
+            device.StartRepair();
+            if (device.SerialNumber == "W102") device.MarkAsDelayed();
+            Console.WriteLine($"{device.SerialNumber} repair cost: {device.CalculateRepairCost():C}");
+            device.CompleteRepair();
         }
+
+        Console.WriteLine("\n=== Reports ===");
+        Console.WriteLine($"Registered devices: {center.Appliances.Count}");
+        Console.WriteLine($"Completed devices: {center.GetCompletedDevices().Count()}");
+        Console.WriteLine($"Devices delayed at least once: {center.GetDelayedDevices().Count()}");
+        Console.WriteLine($"Total repair cost: {center.Appliances.Sum(x => x.CalculateRepairCost()):C}");
+
+        Console.WriteLine("\n=== Validation check ===");
+        Console.WriteLine($"Empty serial accepted: {RepairValidator.IsValidSerialNumber("")}");
+        try
+        {
+            center.Appliances[0].CustomerName = "Changed after completion";
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"Protected completed record: {ex.Message}");
+        }
+        Console.WriteLine("\nProgram finished.");
+    }
+
+    private static void OnStatusChanged(Appliance appliance, RepairStatusChangedEventArgs e)
+    {
+        Console.WriteLine($"Status event: {appliance.SerialNumber}: {e.OldStatus} -> {e.NewStatus} at {e.ChangedAt:T}");
     }
 }

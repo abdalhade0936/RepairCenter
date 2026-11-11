@@ -1,18 +1,8 @@
-namespace RepairCenter
-{
-    public class AirConditioner : Appliance
-    {
-        public AirConditioner(
-            string serialNumber,
-            string customerName,
-            string deliveryLocation)
-            : base(serialNumber, customerName, deliveryLocation)
-        {
-        }
+namespace RepairCenter;
 
-        public override decimal CalculateRepairCost()
-        {
-            return 200m;
-        }
-    }
+public class AirConditioner : Appliance
+{
+    public AirConditioner(string serialNumber, string customerName, string deliveryLocation)
+        : base(serialNumber, customerName, deliveryLocation) { }
+    public override decimal CalculateRepairCost() => 200m;
 }

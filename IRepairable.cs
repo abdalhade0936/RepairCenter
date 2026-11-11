@@ -1,9 +1,10 @@
-namespace RepairCenter
+namespace RepairCenter;
+
+public interface IRepairable
 {
-    public interface IRepairable
-    {
-        void ReceiveDevice();
-        void StartRepair();
-        void CompleteRepair();
-    }
+    void ReceiveDevice();
+    void StartRepair();
+    void MarkAsDelayed();
+    void CompleteRepair();
+    decimal CalculateRepairCost();
 }

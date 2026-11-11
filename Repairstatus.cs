@@ -1,10 +1,9 @@
-namespace RepairCenter
+namespace RepairCenter;
+
+public enum RepairStatus
 {
-    public enum RepairStatus
-    {
-        Received,
-        UnderRepair,
-        Completed,
-        Delayed
-    }
+    Received,
+    UnderRepair,
+    Delayed,
+    Completed
 }
