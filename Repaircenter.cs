@@ -22,11 +22,11 @@ public sealed class RepairCenter
 
     public decimal GetTotalEstimatedCost() => _appliances.Sum(x => x.CalculateRepairCost());
     public IEnumerable<Appliance> GetDelayedDevices() => _appliances.Where(x => x.WasDelayed);
-    public IEnumerable<Appliance> GetCompletedDevices() => _appliances.Where(x => x.Status == RepairStatus.Completed);
+    public IEnumerable<Appliance> GetRepairedDevices() => _appliances.Where(x => x.Status == RepairStatus.Repaired);
 
     private static void HandleStatusChanged(Appliance appliance, RepairStatusChangedEventArgs e)
     {
         if (e.NewStatus == RepairStatus.Delayed) RepairCenterStats.RegisterDelay();
-        if (e.NewStatus == RepairStatus.Completed) RepairCenterStats.RegisterCompletion();
+        if (e.NewStatus == RepairStatus.Repaired) RepairCenterStats.RegisterCompletion();
     }
 }

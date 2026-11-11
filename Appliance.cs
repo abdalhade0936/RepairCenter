@@ -15,7 +15,7 @@ public abstract class Appliance : IRepairable
         get => _customerName;
         set
         {
-            EnsureNotCompleted();
+     EnsureNotCompleted();
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Customer name is required.", nameof(value));
             _customerName = value.Trim();
         }
@@ -25,7 +25,7 @@ public abstract class Appliance : IRepairable
         get => _deliveryLocation;
         set
         {
-            EnsureNotCompleted();
+     EnsureNotCompleted();
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Delivery location is required.", nameof(value));
             _deliveryLocation = value.Trim();
         }
@@ -49,21 +49,21 @@ public abstract class Appliance : IRepairable
         Status = RepairStatus.Received;
     }
 
-    private void EnsureNotCompleted()
+    private void EnsureNotRepaired()
     {
-        if (Status == RepairStatus.Completed) throw new InvalidOperationException("A completed repair record cannot be changed.");
+        if (Status == RepairStatus.Repaired) throw new InvalidOperationException("A Repaired repair record cannot be changed.");
     }
 
     private void ChangeStatus(RepairStatus newStatus)
     {
-        EnsureNotCompleted();
+ EnsureNotCompleted();
         if (Status == newStatus) return;
         bool allowed = (Status == RepairStatus.Received && (newStatus == RepairStatus.UnderRepair || newStatus == RepairStatus.Delayed))
-            || (Status == RepairStatus.UnderRepair && (newStatus == RepairStatus.Delayed || newStatus == RepairStatus.Completed))
-            || (Status == RepairStatus.Delayed && (newStatus == RepairStatus.UnderRepair || newStatus == RepairStatus.Completed));
+            || (Status == RepairStatus.UnderRepair && (newStatus == RepairStatus.Delayed || newStatus == RepairStatus.Repaired))
+            || (Status == RepairStatus.Delayed && (newStatus == RepairStatus.UnderRepair || newStatus == RepairStatus.Repaired));
         if (!allowed) throw new InvalidOperationException($"Cannot change status from {Status} to {newStatus}.");
         if (newStatus == RepairStatus.Delayed) WasDelayed = true;
-        if (newStatus == RepairStatus.Completed) CompletionDate = DateTime.Now;
+        if (newStatus == RepairStatus.Repaired) CompletionDate = DateTime.Now;
         RepairStatus oldStatus = Status;
         Status = newStatus;
         StatusChanged?.Invoke(this, new RepairStatusChangedEventArgs(oldStatus, newStatus));
@@ -75,6 +75,15 @@ public abstract class Appliance : IRepairable
     }
     public void StartRepair() => ChangeStatus(RepairStatus.UnderRepair);
     public void MarkAsDelayed() => ChangeStatus(RepairStatus.Delayed);
-    public void CompleteRepair() => ChangeStatus(RepairStatus.Completed);
+    public void CompleteRepair() => ChangeStatus(RepairStatus.Repaired);
     public abstract decimal CalculateRepairCost();
+    private void EnsureNotCompleted()
+{
+    if (Status == RepairStatus.Repaired ||
+        Status == RepairStatus.Delivered)
+    {
+        throw new InvalidOperationException(
+            "Cannot modify a completed or delivered repair.");
+    }
+}
 }

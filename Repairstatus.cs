@@ -5,5 +5,6 @@ public enum RepairStatus
     Received,
     UnderRepair,
     Delayed,
-    Completed
+    Repaired,
+    Delivered
 }

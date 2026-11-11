@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 
 namespace RepairCenter;
@@ -40,7 +40,7 @@ internal static class Program
 
         Console.WriteLine("\n=== Reports ===");
         Console.WriteLine($"Registered devices: {center.Appliances.Count}");
-        Console.WriteLine($"Completed devices: {center.GetCompletedDevices().Count()}");
+        Console.WriteLine($"Repaired devices: {center.GetRepairedDevices().Count()}");
         Console.WriteLine($"Devices delayed at least once: {center.GetDelayedDevices().Count()}");
         Console.WriteLine($"Total repair cost: {center.Appliances.Sum(x => x.CalculateRepairCost()):C}");
 
@@ -52,7 +52,7 @@ internal static class Program
         }
         catch (InvalidOperationException ex)
         {
-            Console.WriteLine($"Protected completed record: {ex.Message}");
+            Console.WriteLine($"Protected Repaired record: {ex.Message}");
         }
         Console.WriteLine("\nProgram finished.");
     }
